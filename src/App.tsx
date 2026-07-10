@@ -77,9 +77,9 @@ function App() {
     setPlayerBoard(board);
     setPlayerShips((prev) => [...prev, ship]);
 
-    if (shipIndex + 1 < SHIP_SPECS.length) {
-      setShipIndex(shipIndex + 1);
-    } else {
+    const nextIndex = shipIndex + 1;
+    setShipIndex(nextIndex);
+    if (nextIndex >= SHIP_SPECS.length) {
       setMessage("Todos os navios posicionados. Pronto para batalha!");
     }
   }
