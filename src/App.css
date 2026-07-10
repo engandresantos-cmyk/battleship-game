@@ -386,12 +386,18 @@ button.primary {
 }
 
 .ship-layer {
-  display: contents;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  display: grid;
+  grid-template-columns: var(--label) repeat(10, var(--cell));
+  grid-template-rows: var(--cell) repeat(10, var(--cell));
+  gap: var(--gap);
 }
 
 .ship-box {
   position: relative;
-  z-index: 1;
   pointer-events: none;
 }
 
