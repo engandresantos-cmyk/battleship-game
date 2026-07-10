@@ -94,7 +94,7 @@ export function BoardGrid({
                     </>
                   )}
                   {status === "hit" && <span className="marker hit">✹</span>}
-                  {status === "miss" && <span className="marker miss">•</span>}
+                  {status === "miss" && <span className="marker miss">✕</span>}
                 </button>
               );
             })}

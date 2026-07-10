@@ -94,18 +94,19 @@ button.primary {
 
 .sunk-toast {
   position: fixed;
-  top: 20px;
+  top: 38%;
   left: 50%;
   z-index: 100;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   background: #14202c;
   color: #fff;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 10px;
-  padding: 14px 22px;
-  font-size: 18px;
-  font-weight: 600;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  padding: 18px 30px;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
   pointer-events: none;
   animation: sunk-toast-anim 1.8s ease forwards;
 }
@@ -113,30 +114,47 @@ button.primary {
 @keyframes sunk-toast-anim {
   0% {
     opacity: 0;
-    transform: translateX(-50%) translateY(-16px);
+    transform: translate(-50%, -50%) scale(0.85);
   }
   10% {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    transform: translate(-50%, -50%) scale(1);
   }
   85% {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    transform: translate(-50%, -50%) scale(1);
   }
   100% {
     opacity: 0;
-    transform: translateX(-50%) translateY(-10px);
+    transform: translate(-50%, -50%) scale(0.95);
   }
+}
+
+.gameover-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 65;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(4, 10, 18, 0.6);
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .gameover-banner {
   position: relative;
-  z-index: 60;
+  z-index: 66;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  padding: 16px;
+  padding: 32px 40px;
+  background: var(--bg);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  max-width: 90vw;
+  box-sizing: border-box;
 }
 
 .score-card {
@@ -355,7 +373,9 @@ button.primary {
 
 .marker.miss {
   color: #dff1ff;
-  font-size: 20px;
+  font-size: 18px;
+  font-weight: 700;
+  opacity: 0.85;
 }
 
 .marker.hit {

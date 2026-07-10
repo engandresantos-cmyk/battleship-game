@@ -219,7 +219,7 @@ function App() {
 
   return (
     <div className="app">
-      {sunkToast && (
+      {sunkToast && phase !== "gameover" && (
         <div className="sunk-toast" key={sunkToast.id}>
           🚢💥 {sunkToast.text}
         </div>
@@ -310,30 +310,32 @@ function App() {
       {phase === "gameover" && winner === "player" && <Fireworks />}
 
       {phase === "gameover" && (
-        <div className="gameover-banner">
-          {winner === "player" ? (
-            <>
-              <h2>🎉 Você venceu!</h2>
-              {finalScore && (
-                <div className="score-card">
-                  <div className="score-total">{finalScore.score} pontos</div>
-                  <div className="score-details">
-                    <span>Precisão: {finalScore.accuracyPct}%</span>
-                    <span>Tempo: {finalScore.timeSeconds}s</span>
-                    <span>Dificuldade: x{finalScore.difficultyMultiplier}</span>
+        <div className="gameover-overlay">
+          <div className="gameover-banner">
+            {winner === "player" ? (
+              <>
+                <h2>🎉 Você venceu!</h2>
+                {finalScore && (
+                  <div className="score-card">
+                    <div className="score-total">{finalScore.score} pontos</div>
+                    <div className="score-details">
+                      <span>Precisão: {finalScore.accuracyPct}%</span>
+                      <span>Tempo: {finalScore.timeSeconds}s</span>
+                      <span>Dificuldade: x{finalScore.difficultyMultiplier}</span>
+                    </div>
                   </div>
-                </div>
-              )}
-            </>
-          ) : (
-            <>
-              <h2 className="game-over-title">GAME OVER</h2>
-              <p className="game-over-subtitle">💥 O computador venceu!</p>
-            </>
-          )}
-          <button type="button" className="primary" onClick={handlePlayAgain}>
-            Jogar novamente
-          </button>
+                )}
+              </>
+            ) : (
+              <>
+                <h2 className="game-over-title">GAME OVER</h2>
+                <p className="game-over-subtitle">💥 O computador venceu!</p>
+              </>
+            )}
+            <button type="button" className="primary" onClick={handlePlayAgain}>
+              Jogar novamente
+            </button>
+          </div>
         </div>
       )}
     </div>
