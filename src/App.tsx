@@ -10,7 +10,7 @@ import {
   placeShipsRandomly,
   shipCellsFor,
 } from "./game/board";
-import { playSinkSound } from "./game/sound";
+import { playHitSound, playMissSound, playSinkSound } from "./game/sound";
 import { SHIP_SPECS } from "./game/types";
 import type { Board, Difficulty, Orientation, Ship } from "./game/types";
 import "./App.css";
@@ -115,6 +115,10 @@ function App() {
       playSinkSound();
       setSinkingComputerShip(shipName);
       window.setTimeout(() => setSinkingComputerShip(null), SINK_ANIMATION_MS);
+    } else if (result === "hit") {
+      playHitSound();
+    } else {
+      playMissSound();
     }
 
     if (allShipsSunk(ships)) {
@@ -147,6 +151,10 @@ function App() {
       playSinkSound();
       setSinkingPlayerShip(shipName);
       window.setTimeout(() => setSinkingPlayerShip(null), SINK_ANIMATION_MS);
+    } else if (result === "hit") {
+      playHitSound();
+    } else {
+      playMissSound();
     }
 
     if (allShipsSunk(ships)) {

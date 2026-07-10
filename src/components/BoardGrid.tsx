@@ -83,7 +83,15 @@ export function BoardGrid({
                     />
                   )}
                   {shipInfo?.ship.name === sinkingShipName && (
-                    <span className="ripple" aria-hidden="true" />
+                    <>
+                      <span className="ripple" aria-hidden="true" />
+                      <span className="water-rise" aria-hidden="true" />
+                      <span className="bubbles" aria-hidden="true">
+                        <i />
+                        <i />
+                        <i />
+                      </span>
+                    </>
                   )}
                   {status === "hit" && <span className="marker hit">✹</span>}
                   {status === "miss" && <span className="marker miss">•</span>}
