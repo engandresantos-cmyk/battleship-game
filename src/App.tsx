@@ -11,7 +11,9 @@ import {
   placeShipsRandomly,
   shipCellsFor,
 } from "./game/board";
-import { playHitSound, playMissSound, playSinkSound } from "./game/sound";
+import { computeScore } from "./game/score";
+import type { ScoreBreakdown } from "./game/score";
+import { playHitSound, playLoseSound, playMissSound, playSinkSound } from "./game/sound";
 import { SHIP_SPECS } from "./game/types";
 import type { Board, Difficulty, Orientation, Ship } from "./game/types";
 import "./App.css";
@@ -44,8 +46,12 @@ function App() {
   const [sinkingComputerShip, setSinkingComputerShip] = useState<string | null>(null);
   const [sinkingPlayerShip, setSinkingPlayerShip] = useState<string | null>(null);
   const [sunkToast, setSunkToast] = useState<{ id: number; text: string } | null>(null);
+  const [finalScore, setFinalScore] = useState<ScoreBreakdown | null>(null);
   const ai = useRef(new AIPlayer(difficulty));
   const toastIdRef = useRef(0);
+  const battleStartRef = useRef(0);
+  const shotsFiredRef = useRef(0);
+  const hitsRef = useRef(0);
 
   function showSunkToast(text: string) {
     const id = ++toastIdRef.current;
@@ -106,6 +112,10 @@ function App() {
     setComputerBoard(board);
     setComputerShips(ships);
     ai.current = new AIPlayer(difficulty);
+    battleStartRef.current = Date.now();
+    shotsFiredRef.current = 0;
+    hitsRef.current = 0;
+    setFinalScore(null);
     setPhase("playing");
     setTurn("player");
     setMessage("Sua vez! Atire no tabuleiro do computador.");
@@ -122,6 +132,9 @@ function App() {
     setComputerBoard(board);
     setComputerShips(ships);
 
+    shotsFiredRef.current += 1;
+    if (result === "hit" || result === "sunk") hitsRef.current += 1;
+
     if (result === "sunk") {
       const shipName = board[row][col].shipName!;
       playSinkSound();
@@ -135,6 +148,8 @@ function App() {
     }
 
     if (allShipsSunk(ships)) {
+      const elapsedMs = Date.now() - battleStartRef.current;
+      setFinalScore(computeScore(shotsFiredRef.current, hitsRef.current, elapsedMs, difficulty));
       setWinner("player");
       setPhase("gameover");
       setMessage("Você afundou toda a frota inimiga! Vitória!");
@@ -172,6 +187,7 @@ function App() {
     }
 
     if (allShipsSunk(ships)) {
+      playLoseSound();
       setWinner("computer");
       setPhase("gameover");
       setMessage(`O computador atirou em ${cellLabel} e afundou sua frota. Derrota!`);
@@ -197,6 +213,7 @@ function App() {
     setSinkingComputerShip(null);
     setSinkingPlayerShip(null);
     setSunkToast(null);
+    setFinalScore(null);
     setMessage("Posicione seus navios no tabuleiro.");
   }
 
@@ -294,7 +311,26 @@ function App() {
 
       {phase === "gameover" && (
         <div className="gameover-banner">
-          <h2>{winner === "player" ? "🎉 Você venceu!" : "💥 O computador venceu!"}</h2>
+          {winner === "player" ? (
+            <>
+              <h2>🎉 Você venceu!</h2>
+              {finalScore && (
+                <div className="score-card">
+                  <div className="score-total">{finalScore.score} pontos</div>
+                  <div className="score-details">
+                    <span>Precisão: {finalScore.accuracyPct}%</span>
+                    <span>Tempo: {finalScore.timeSeconds}s</span>
+                    <span>Dificuldade: x{finalScore.difficultyMultiplier}</span>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <h2 className="game-over-title">GAME OVER</h2>
+              <p className="game-over-subtitle">💥 O computador venceu!</p>
+            </>
+          )}
           <button type="button" className="primary" onClick={handlePlayAgain}>
             Jogar novamente
           </button>

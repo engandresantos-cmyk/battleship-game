@@ -93,3 +93,28 @@ export function playSinkSound(): void {
   noise.start(now);
   noise.stop(now + 0.4);
 }
+
+/** Descending "sad trombone" for a loss. */
+export function playLoseSound(): void {
+  const audioCtx = getContext();
+  const now = audioCtx.currentTime;
+  const notes = [392, 370, 349, 330];
+  const noteLength = 0.28;
+
+  notes.forEach((freq, i) => {
+    const start = now + i * noteLength;
+    const isLast = i === notes.length - 1;
+    const sustain = noteLength * (isLast ? 2.2 : 0.95);
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(freq, start);
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(0.22, start + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + sustain);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(start);
+    osc.stop(start + sustain + 0.05);
+  });
+}
