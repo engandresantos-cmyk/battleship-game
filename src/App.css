@@ -5,6 +5,16 @@
   gap: 24px;
   padding: 32px 20px 48px;
   flex-grow: 1;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+@media (max-width: 480px) {
+  .app {
+    padding: 16px 10px 32px;
+    gap: 16px;
+  }
 }
 
 .app-header {
@@ -81,6 +91,14 @@ button.primary {
   justify-content: center;
 }
 
+@media (max-width: 700px) {
+  .battle {
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+}
+
 .board-column {
   display: flex;
   flex-direction: column;
@@ -97,18 +115,30 @@ button.primary {
   top: 38%;
   left: 50%;
   z-index: 100;
+  width: min(420px, 88vw);
   transform: translate(-50%, -50%);
   background: #14202c;
   color: #fff;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 10px;
-  padding: 18px 30px;
-  font-size: 22px;
-  font-weight: 700;
-  text-align: center;
+  overflow: hidden;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
   pointer-events: none;
   animation: sunk-toast-anim 1.8s ease forwards;
+}
+
+.sunk-toast-img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.sunk-toast-caption {
+  margin: 0;
+  padding: 10px 16px;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
 }
 
 @keyframes sunk-toast-anim {
@@ -154,7 +184,16 @@ button.primary {
   border-radius: 16px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
   max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
   box-sizing: border-box;
+}
+
+@media (max-width: 480px) {
+  .gameover-banner {
+    padding: 24px 20px;
+    gap: 12px;
+  }
 }
 
 .score-card {
@@ -185,9 +224,9 @@ button.primary {
 
 .game-over-title {
   margin: 0;
-  font-size: 72px;
+  font-size: clamp(36px, 12vw, 72px);
   font-weight: 800;
-  letter-spacing: 6px;
+  letter-spacing: clamp(2px, 1vw, 6px);
   color: #ff3b3b;
   text-shadow:
     0 0 12px rgba(255, 59, 59, 0.7),
@@ -250,15 +289,34 @@ button.primary {
 }
 
 .board-grid {
+  --cell: 32px;
+  --label: 24px;
+  --gap: 3px;
   position: relative;
   display: grid;
-  grid-template-columns: 24px repeat(10, 32px);
-  gap: 3px;
+  grid-template-columns: var(--label) repeat(10, var(--cell));
+  grid-template-rows: var(--cell) repeat(10, var(--cell));
+  gap: var(--gap);
+}
+
+@media (max-width: 480px) {
+  .board-grid {
+    --cell: 26px;
+    --label: 20px;
+    --gap: 2px;
+  }
+}
+
+@media (max-width: 380px) {
+  .board-grid {
+    --cell: 22px;
+    --label: 18px;
+  }
 }
 
 .corner {
-  width: 24px;
-  height: 32px;
+  width: var(--label);
+  height: var(--cell);
 }
 
 .col-label,
@@ -266,8 +324,8 @@ button.primary {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 32px;
-  font-size: 13px;
+  height: var(--cell);
+  font-size: clamp(10px, calc(var(--cell) * 0.4), 13px);
   color: #eaf6ff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
@@ -279,8 +337,8 @@ button.primary {
 .cell {
   position: relative;
   z-index: 2;
-  width: 32px;
-  height: 32px;
+  width: var(--cell);
+  height: var(--cell);
   padding: 0;
   border-radius: 4px;
   border: 1px solid rgba(255, 255, 255, 0.22);
@@ -328,14 +386,12 @@ button.primary {
 }
 
 .ship-layer {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
+  display: contents;
 }
 
 .ship-box {
-  position: absolute;
+  position: relative;
+  z-index: 1;
   pointer-events: none;
 }
 
@@ -381,13 +437,13 @@ button.primary {
 
 .marker.miss {
   color: #dff1ff;
-  font-size: 18px;
+  font-size: clamp(11px, calc(var(--cell) * 0.56), 18px);
   font-weight: 700;
   opacity: 0.85;
 }
 
 .marker.hit {
-  font-size: 26px;
+  font-size: clamp(14px, calc(var(--cell) * 0.8), 26px);
   color: #ff3b3b;
   text-shadow:
     0 0 3px #1c1f24,

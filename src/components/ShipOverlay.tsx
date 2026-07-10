@@ -1,22 +1,16 @@
 import { shipImageSrc } from "../game/shipImages";
 import type { ShipBounds } from "../game/shipVisual";
 
-const CELL = 32;
-const GAP = 3;
-const PITCH = CELL + GAP;
-const LABEL_COL_WIDTH = 24;
-const LABEL_ROW_HEIGHT = 32;
-
 interface ShipOverlayProps extends ShipBounds {
   sinking: boolean;
 }
 
 export function ShipOverlay({ ship, row, col, orientation, sunk, sinking }: ShipOverlayProps) {
-  const left = LABEL_COL_WIDTH + GAP + col * PITCH;
-  const top = LABEL_ROW_HEIGHT + GAP + row * PITCH;
-  const span = ship.size * CELL + (ship.size - 1) * GAP;
-  const width = orientation === "horizontal" ? span : CELL;
-  const height = orientation === "horizontal" ? CELL : span;
+  // +2: grid column/row 1 is the label row/column, and grid lines are 1-indexed.
+  const colStart = col + 2;
+  const rowStart = row + 2;
+  const gridColumn = orientation === "horizontal" ? `${colStart} / span ${ship.size}` : `${colStart} / span 1`;
+  const gridRow = orientation === "horizontal" ? `${rowStart} / span 1` : `${rowStart} / span ${ship.size}`;
 
   const centerStyle =
     orientation === "horizontal"
@@ -24,7 +18,7 @@ export function ShipOverlay({ ship, row, col, orientation, sunk, sinking }: Ship
       : { left: "50%", top: 0, height: "100%", transform: "translateX(-50%)" };
 
   return (
-    <div className="ship-box" style={{ left, top, width, height }} aria-hidden="true">
+    <div className="ship-box" style={{ gridColumn, gridRow }} aria-hidden="true">
       <div className="ship-center" style={centerStyle}>
         <img
           src={shipImageSrc(ship.kind, orientation)}

@@ -221,7 +221,8 @@ function App() {
     <div className="app">
       {sunkToast && phase !== "gameover" && (
         <div className="sunk-toast" key={sunkToast.id}>
-          🚢💥 {sunkToast.text}
+          <img src={`${import.meta.env.BASE_URL}sunk-banner.png`} alt="" className="sunk-toast-img" />
+          <p className="sunk-toast-caption">{sunkToast.text}</p>
         </div>
       )}
       <header className="app-header">
