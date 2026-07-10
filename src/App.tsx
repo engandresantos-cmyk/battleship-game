@@ -10,11 +10,21 @@ import {
   placeShipsRandomly,
   shipCellsFor,
 } from "./game/board";
+import { playSinkSound } from "./game/sound";
 import { SHIP_SPECS } from "./game/types";
-import type { Board, Orientation, Ship } from "./game/types";
+import type { Board, Difficulty, Orientation, Ship } from "./game/types";
 import "./App.css";
 
 type Phase = "setup" | "playing" | "gameover";
+
+const SINK_ANIMATION_MS = 1100;
+
+const DIFFICULTIES: { value: Difficulty; label: string }[] = [
+  { value: "easy", label: "Fácil" },
+  { value: "medium", label: "Médio" },
+  { value: "hard", label: "Difícil" },
+  { value: "master", label: "Mestre" },
+];
 
 function App() {
   const [phase, setPhase] = useState<Phase>("setup");
@@ -28,7 +38,10 @@ function App() {
   const [message, setMessage] = useState("Posicione seus navios no tabuleiro.");
   const [winner, setWinner] = useState<"player" | "computer" | null>(null);
   const [turn, setTurn] = useState<"player" | "computer">("player");
-  const ai = useRef(new AIPlayer());
+  const [difficulty, setDifficulty] = useState<Difficulty>("medium");
+  const [sinkingComputerShip, setSinkingComputerShip] = useState<string | null>(null);
+  const [sinkingPlayerShip, setSinkingPlayerShip] = useState<string | null>(null);
+  const ai = useRef(new AIPlayer(difficulty));
 
   const currentSpec = SHIP_SPECS[shipIndex];
 
@@ -80,7 +93,7 @@ function App() {
     const ships = placeShipsRandomly(board);
     setComputerBoard(board);
     setComputerShips(ships);
-    ai.current = new AIPlayer();
+    ai.current = new AIPlayer(difficulty);
     setPhase("playing");
     setTurn("player");
     setMessage("Sua vez! Atire no tabuleiro do computador.");
@@ -97,6 +110,13 @@ function App() {
     setComputerBoard(board);
     setComputerShips(ships);
 
+    if (result === "sunk") {
+      const shipName = board[row][col].shipName!;
+      playSinkSound();
+      setSinkingComputerShip(shipName);
+      window.setTimeout(() => setSinkingComputerShip(null), SINK_ANIMATION_MS);
+    }
+
     if (allShipsSunk(ships)) {
       setWinner("player");
       setPhase("gameover");
@@ -104,7 +124,7 @@ function App() {
       return;
     }
 
-    if (result === "hit") setMessage("Acertou! Jogue de novo... aguarde a resposta do computador.");
+    if (result === "hit") setMessage("Acertou! Aguarde a resposta do computador.");
     else if (result === "sunk") setMessage("Navio inimigo afundado!");
     else setMessage("Água! Vez do computador.");
 
@@ -121,6 +141,13 @@ function App() {
     setPlayerBoard(board);
     setPlayerShips(ships);
     setTurn("player");
+
+    if (result === "sunk") {
+      const shipName = board[row][col].shipName!;
+      playSinkSound();
+      setSinkingPlayerShip(shipName);
+      window.setTimeout(() => setSinkingPlayerShip(null), SINK_ANIMATION_MS);
+    }
 
     if (allShipsSunk(ships)) {
       setWinner("computer");
@@ -145,6 +172,8 @@ function App() {
     setOrientation("horizontal");
     setWinner(null);
     setTurn("player");
+    setSinkingComputerShip(null);
+    setSinkingPlayerShip(null);
     setMessage("Posicione seus navios no tabuleiro.");
   }
 
@@ -157,6 +186,19 @@ function App() {
 
       {phase === "setup" && (
         <section className="setup">
+          <div className="difficulty-picker">
+            <span>Dificuldade:</span>
+            {DIFFICULTIES.map((d) => (
+              <button
+                type="button"
+                key={d.value}
+                className={difficulty === d.value ? "primary" : ""}
+                onClick={() => setDifficulty(d.value)}
+              >
+                {d.label}
+              </button>
+            ))}
+          </div>
           <div className="setup-controls">
             {shipIndex < SHIP_SPECS.length ? (
               <p>
@@ -183,6 +225,7 @@ function App() {
           </div>
           <BoardGrid
             board={playerBoard}
+            ships={playerShips}
             revealShips
             interactive={shipIndex < SHIP_SPECS.length}
             onCellClick={handlePlaceShip}
@@ -197,15 +240,23 @@ function App() {
         <section className="battle">
           <div className="board-column">
             <h2>Seu tabuleiro</h2>
-            <BoardGrid board={playerBoard} revealShips interactive={false} />
+            <BoardGrid
+              board={playerBoard}
+              ships={playerShips}
+              revealShips
+              interactive={false}
+              sinkingShipName={sinkingPlayerShip}
+            />
           </div>
           <div className="board-column">
             <h2>Tabuleiro inimigo</h2>
             <BoardGrid
               board={computerBoard}
+              ships={computerShips}
               revealShips={phase === "gameover"}
               interactive={phase === "playing" && turn === "player"}
               onCellClick={handlePlayerFire}
+              sinkingShipName={sinkingComputerShip}
             />
           </div>
         </section>

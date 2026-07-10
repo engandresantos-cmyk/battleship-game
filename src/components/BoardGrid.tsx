@@ -1,22 +1,25 @@
 import { BOARD_SIZE } from "../game/types";
-import type { Board, CellStatus } from "../game/types";
+import type { Board, CellStatus, Ship } from "../game/types";
+import { shipCellInfoAt } from "../game/shipVisual";
+import { ShipSegment } from "./ShipSegment";
 
 interface BoardGridProps {
   board: Board;
+  ships: Ship[];
   revealShips: boolean;
   interactive: boolean;
   onCellClick?: (row: number, col: number) => void;
   onCellHover?: (row: number, col: number) => void;
   previewCells?: Set<string>;
   previewValid?: boolean;
+  sinkingShipName?: string | null;
 }
 
-function statusOf(board: Board, row: number, col: number, revealShips: boolean): CellStatus {
+function statusOf(board: Board, row: number, col: number): CellStatus {
   const cell = board[row][col];
   if (cell.shot) {
     return cell.shipName ? "hit" : "miss";
   }
-  if (cell.shipName && revealShips) return "ship";
   return "empty";
 }
 
@@ -24,12 +27,14 @@ const COLS = "ABCDEFGHIJ".split("");
 
 export function BoardGrid({
   board,
+  ships,
   revealShips,
   interactive,
   onCellClick,
   onCellHover,
   previewCells,
   previewValid,
+  sinkingShipName,
 }: BoardGridProps) {
   return (
     <div className="board-wrapper">
@@ -44,13 +49,16 @@ export function BoardGrid({
           <div className="board-row" key={row} role="row">
             <div className="row-label">{row + 1}</div>
             {Array.from({ length: BOARD_SIZE }, (_, col) => {
-              const status = statusOf(board, row, col, revealShips);
+              const status = statusOf(board, row, col);
               const key = `${row},${col}`;
               const isPreview = previewCells?.has(key);
+              const shipInfo = shipCellInfoAt(ships, row, col);
+              const showHull = Boolean(shipInfo && (revealShips || shipInfo.sunk));
               const classes = [
                 "cell",
                 status,
                 interactive ? "interactive" : "",
+                showHull ? "has-ship" : "",
                 isPreview ? (previewValid ? "preview-valid" : "preview-invalid") : "",
               ]
                 .filter(Boolean)
@@ -65,8 +73,20 @@ export function BoardGrid({
                   onMouseEnter={() => onCellHover?.(row, col)}
                   aria-label={`${COLS[col]}${row + 1}`}
                 >
-                  {status === "hit" && "✹"}
-                  {status === "miss" && "•"}
+                  {showHull && shipInfo && (
+                    <ShipSegment
+                      kind={shipInfo.ship.kind}
+                      part={shipInfo.part}
+                      orientation={shipInfo.orientation}
+                      sunk={shipInfo.sunk}
+                      sinking={shipInfo.ship.name === sinkingShipName}
+                    />
+                  )}
+                  {shipInfo?.ship.name === sinkingShipName && (
+                    <span className="ripple" aria-hidden="true" />
+                  )}
+                  {status === "hit" && <span className="marker hit">✹</span>}
+                  {status === "miss" && <span className="marker miss">•</span>}
                 </button>
               );
             })}

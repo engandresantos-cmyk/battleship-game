@@ -61,6 +61,7 @@ export function placeShip(
   return {
     name: ship.name,
     size: ship.size,
+    kind: ship.kind,
     cells: cells.map(({ row: r, col: c }) => cellKey(r, c)),
     hits: new Set(),
   };
