@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { BoardGrid } from "./components/BoardGrid";
+import { Fireworks } from "./components/Fireworks";
 import { AIPlayer } from "./game/ai";
 import {
   allShipsSunk,
@@ -18,6 +19,7 @@ import "./App.css";
 type Phase = "setup" | "playing" | "gameover";
 
 const SINK_ANIMATION_MS = 1100;
+const SUNK_TOAST_MS = 1800;
 
 const DIFFICULTIES: { value: Difficulty; label: string }[] = [
   { value: "easy", label: "Fácil" },
@@ -41,7 +43,17 @@ function App() {
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
   const [sinkingComputerShip, setSinkingComputerShip] = useState<string | null>(null);
   const [sinkingPlayerShip, setSinkingPlayerShip] = useState<string | null>(null);
+  const [sunkToast, setSunkToast] = useState<{ id: number; text: string } | null>(null);
   const ai = useRef(new AIPlayer(difficulty));
+  const toastIdRef = useRef(0);
+
+  function showSunkToast(text: string) {
+    const id = ++toastIdRef.current;
+    setSunkToast({ id, text });
+    window.setTimeout(() => {
+      setSunkToast((current) => (current?.id === id ? null : current));
+    }, SUNK_TOAST_MS);
+  }
 
   const currentSpec = SHIP_SPECS[shipIndex];
 
@@ -115,6 +127,7 @@ function App() {
       playSinkSound();
       setSinkingComputerShip(shipName);
       window.setTimeout(() => setSinkingComputerShip(null), SINK_ANIMATION_MS);
+      showSunkToast(`Navio afundado: ${shipName} inimigo!`);
     } else if (result === "hit") {
       playHitSound();
     } else {
@@ -151,6 +164,7 @@ function App() {
       playSinkSound();
       setSinkingPlayerShip(shipName);
       window.setTimeout(() => setSinkingPlayerShip(null), SINK_ANIMATION_MS);
+      showSunkToast(`Navio afundado: seu ${shipName}!`);
     } else if (result === "hit") {
       playHitSound();
     } else {
@@ -182,11 +196,17 @@ function App() {
     setTurn("player");
     setSinkingComputerShip(null);
     setSinkingPlayerShip(null);
+    setSunkToast(null);
     setMessage("Posicione seus navios no tabuleiro.");
   }
 
   return (
     <div className="app">
+      {sunkToast && (
+        <div className="sunk-toast" key={sunkToast.id}>
+          🚢💥 {sunkToast.text}
+        </div>
+      )}
       <header className="app-header">
         <h1>⚓ Batalha Naval</h1>
         <p className="message">{message}</p>
@@ -269,6 +289,8 @@ function App() {
           </div>
         </section>
       )}
+
+      {phase === "gameover" && winner === "player" && <Fireworks />}
 
       {phase === "gameover" && (
         <div className="gameover-banner">
