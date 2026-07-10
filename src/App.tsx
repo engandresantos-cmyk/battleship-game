@@ -227,7 +227,7 @@ function App() {
       )}
       <header className="app-header">
         <h1>
-          ⚓ Batalha Naval <img src={`${import.meta.env.BASE_URL}swords.png`} alt="" className="title-icon" />
+          ⚓ Batalha Naval DL <img src={`${import.meta.env.BASE_URL}swords.png`} alt="" className="title-icon" />
         </h1>
         <p className="message">{message}</p>
       </header>
