@@ -223,6 +223,18 @@ button.primary {
   border: 1px solid var(--border);
 }
 
+.score-rank {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #c8922a;
+  padding: 3px 14px;
+  border: 1px solid rgba(200, 146, 42, 0.5);
+  border-radius: 999px;
+  background: rgba(200, 146, 42, 0.12);
+}
+
 .score-total {
   font-size: 32px;
   font-weight: 700;

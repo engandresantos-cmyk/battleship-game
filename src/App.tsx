@@ -320,6 +320,7 @@ function App() {
                 <h2>🎉 Você venceu!</h2>
                 {finalScore && (
                   <div className="score-card">
+                    <div className="score-rank">{finalScore.rank}</div>
                     <div className="score-total">{finalScore.score} pontos</div>
                     <div className="score-details">
                       <span>Precisão: {finalScore.accuracyPct}%</span>
