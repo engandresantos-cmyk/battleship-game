@@ -36,13 +36,7 @@ export function canPlaceShip(
   const cells = shipCellsFor(row, col, size, orientation);
   for (const { row: r, col: c } of cells) {
     if (!inBounds(r, c)) return false;
-    for (let dr = -1; dr <= 1; dr++) {
-      for (let dc = -1; dc <= 1; dc++) {
-        const nr = r + dr;
-        const nc = c + dc;
-        if (inBounds(nr, nc) && board[nr][nc].shipName) return false;
-      }
-    }
+    if (board[r][c].shipName) return false;
   }
   return true;
 }

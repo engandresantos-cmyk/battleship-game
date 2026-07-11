@@ -45,9 +45,9 @@ function unresolvedHits(board: Board, ships: Ship[]): { row: number; col: number
 
 /**
  * Probability-density map: for every remaining ship, count how many of its
- * possible placements would cover each cell. Cells adjacent to a sunk ship
- * are excluded (ships can never touch), and cells covering an unresolved hit
- * are weighted heavily so the AI finishes off a wounded ship first.
+ * possible placements would cover each cell (skipping cells already known to
+ * be misses), weighted heavily toward cells covering an unresolved hit so the
+ * AI finishes off a wounded ship first.
  */
 function computeProbabilityBoard(board: Board, ships: Ship[]): number[][] {
   const scores: number[][] = Array.from({ length: BOARD_SIZE }, () =>
@@ -59,17 +59,6 @@ function computeProbabilityBoard(board: Board, ships: Ship[]): number[][] {
     for (let col = 0; col < BOARD_SIZE; col++) {
       const cell = board[row][col];
       if (cell.shot && !cell.shipName) noGo.add(cellKey(row, col));
-    }
-  }
-  for (const ship of ships) {
-    if (!isSunk(ship)) continue;
-    for (const key of ship.cells) {
-      const [r, c] = key.split(",").map(Number);
-      for (let dr = -1; dr <= 1; dr++) {
-        for (let dc = -1; dc <= 1; dc++) {
-          if (inBounds(r + dr, c + dc)) noGo.add(cellKey(r + dr, c + dc));
-        }
-      }
     }
   }
 
@@ -163,8 +152,7 @@ function targetAroundHits(board: Board, hits: { row: number; col: number }[]): {
  * - easy: fires at uniformly random cells, never follows up on hits.
  * - medium: random hunting, then probes the four neighbors of a hit.
  * - hard: checkerboard-parity hunting plus line-following once a ship is wounded.
- * - master: full probability-density targeting that also exploits the "ships
- *   never touch" rule, recomputed after every shot.
+ * - master: full probability-density targeting, recomputed after every shot.
  */
 export class AIPlayer {
   private difficulty: Difficulty;
